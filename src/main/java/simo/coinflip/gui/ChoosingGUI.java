@@ -19,14 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChoosingGUI {
-    private final FlipQueue flipQueue;
-    private final Plugin plugin;
+    private final FlipQueue flipQueue;;
     public final NamespacedKey coinflipkey;
     private Inventory inv;
 
     public ChoosingGUI(FlipQueue flipQueue,  Plugin plugin) {
         this.flipQueue = flipQueue;
-        this.plugin = plugin;
         coinflipkey = new NamespacedKey(plugin, "coinflip");
     }
 

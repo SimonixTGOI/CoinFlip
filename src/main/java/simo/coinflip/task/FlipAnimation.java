@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import simo.coinflip.gui.ChoosingGUI;
 import simo.coinflip.gui.Flipping;
 
 import java.util.Objects;
