@@ -1,0 +1,11 @@
+simo\coinflip\gui\ChoosingGUI.class
+simo\coinflip\contructors\CoinFlip.class
+simo\coinflip\gui\CreateFlipGUI.class
+simo\coinflip\managers\CoinFlipManager.class
+simo\coinflip\commands\CoinFlipCommand.class
+simo\coinflip\managers\EconomyManager.class
+simo\coinflip\commands\LeaveQueueCommand.class
+simo\coinflip\task\FlipAnimation.class
+simo\coinflip\managers\FlipQueue.class
+simo\coinflip\Coinflip.class
+simo\coinflip\listeners\ClickListener.class

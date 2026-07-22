@@ -1,0 +1,23 @@
+name: coinflip
+version: '${version}'
+main: simo.coinflip.Coinflip
+api-version: '26.1.2'
+softdepend:
+  - Vault
+
+commands:
+  coinflip:
+    description: opens the coinflip gui
+    usage: /coinflip
+  leavequeue:
+    description: leaves the coinflip queue
+    usage: /leavequeue
+
+
+permissions:
+  coinflip.command:
+    description: grants the access to /coinflip
+    default: op
+  coinflip.leavequeue:
+    description: grants the access to /leavequeue
+    default: op
