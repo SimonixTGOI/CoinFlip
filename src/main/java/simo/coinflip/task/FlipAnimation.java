@@ -7,48 +7,49 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import simo.coinflip.gui.ChoosingGUI;
+import simo.coinflip.gui.Flipping;
 
 import java.util.Objects;
 
 public class FlipAnimation extends BukkitRunnable {
-    private final ChoosingGUI choosingGUI;
     private final Player player;
+    private final Player target;
     private final Inventory inventory;
+    private final Flipping flipping;
     private int status;
     private int count = 0;
 
-    public FlipAnimation(ChoosingGUI choosingGUI, Player player, Inventory inventory) {
-        this.choosingGUI = choosingGUI;
+    public FlipAnimation(Player player, Player target, Inventory inventory, Flipping flipping) {
         this.player = player;
+        this.target = target;
         this.inventory = inventory;
+        this.flipping = flipping;
     }
 
 
     @Override
     public void run() {
-        setInventory();
-        if(count > 9) {
+
+        if(count > 5) {
+            flipping.flipResult();
             this.cancel();
-            player.closeInventory();
+        } else {
+            setInventory();
+            count++;
         }
-        count++;
+
     }
 
     public void redInventory() {
-
-        inventory.setItem(22, choosingGUI.createItem(player));
-
         for(int i = 0; i < inventory.getSize(); i++) {
             if(inventory.getItem(i) == null|| Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.GREEN_STAINED_GLASS_PANE) {
                 inventory.setItem(i, new ItemStack(Material.RED_STAINED_GLASS_PANE));
             }
         }
+
     }
 
     public void greenInventory() {
-
-        inventory.setItem(22, choosingGUI.createItem(player));
-
         for(int i = 0; i < inventory.getSize(); i++) {
             if(inventory.getItem(i) == null|| Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.RED_STAINED_GLASS_PANE) {
                 inventory.setItem(i, new ItemStack(Material.GREEN_STAINED_GLASS_PANE));
@@ -61,10 +62,12 @@ public class FlipAnimation extends BukkitRunnable {
             greenInventory();
             status = 1;
             player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BELL, 1.0f, 1.0f);
+            target.playSound(target, Sound.BLOCK_NOTE_BLOCK_BELL, 1.0f, 1.0f);
         } else {
             redInventory();
             status = 0;
             player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 1.0f);
+            target.playSound(target, Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 1.0f);
         }
     }
 }

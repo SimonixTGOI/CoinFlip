@@ -1,4 +1,4 @@
-package simo.coinflip.contructors;
+package simo.coinflip.models;
 
 import org.bukkit.entity.Player;
 

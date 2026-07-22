@@ -12,7 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
-import simo.coinflip.contructors.CoinFlip;
+import simo.coinflip.models.CoinFlip;
 import simo.coinflip.managers.FlipQueue;
 
 import java.util.ArrayList;
@@ -22,6 +22,7 @@ public class ChoosingGUI {
     private final FlipQueue flipQueue;
     private final Plugin plugin;
     public final NamespacedKey coinflipkey;
+    private Inventory inv;
 
     public ChoosingGUI(FlipQueue flipQueue,  Plugin plugin) {
         this.flipQueue = flipQueue;
@@ -30,7 +31,7 @@ public class ChoosingGUI {
     }
 
     public void openGUI(Player player) {
-        Inventory inv = Bukkit.createInventory(player, 27, Component.text("CoinFlip"));
+        inv = Bukkit.createInventory(player, 27, Component.text("CoinFlip"));
 
         ItemStack nextPage = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
         ItemStack previousPage = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
@@ -86,15 +87,22 @@ public class ChoosingGUI {
         return skull;
     }
 
-    public ItemStack createItem(Player player) {
+    public ItemStack createSkull(Player player) {
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
         skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(player.getUniqueId()));
-        skullMeta.customName(Component.text(player.getName() + "'s CoinFlip")
+        skullMeta.customName(Component.text(player.getName())
                 .decoration(TextDecoration.ITALIC, false));
 
         skull.setItemMeta(skullMeta);
         return skull;
     }
+
+
+    public void updateChoosingGUI(CoinFlip coinFlip) {
+        inv.addItem(createItem(coinFlip));
+    }
+
+
 
 }

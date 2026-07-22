@@ -1,7 +1,7 @@
 package simo.coinflip.managers;
 
 import org.bukkit.entity.Player;
-import simo.coinflip.contructors.CoinFlip;
+import simo.coinflip.models.CoinFlip;
 
 import java.util.*;
 

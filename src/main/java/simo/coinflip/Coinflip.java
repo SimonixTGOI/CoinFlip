@@ -23,14 +23,16 @@ public final class Coinflip extends JavaPlugin {
         EconomyManager economyManager = new EconomyManager(this);
 
         economyManager.setup();
+        if(!economyManager.isEnabled()) {
+            return;
+        }
 
         CoinFlipManager coinFlipManager = new CoinFlipManager();
-        FlipQueue flipQueue = new FlipQueue();
+        FlipQueue flipQueue = new FlipQueue(economyManager);
         ChoosingGUI choosingGUI = new ChoosingGUI(flipQueue, this);
         CreateFlipGUI createFlipGUI = new CreateFlipGUI(coinFlipManager);
 
-
-        ClickListener clickListener = new ClickListener(choosingGUI, createFlipGUI, coinFlipManager, flipQueue, this, economyManager);
+        ClickListener clickListener = new ClickListener(choosingGUI, createFlipGUI, coinFlipManager, flipQueue, economyManager, this);
 
 
         Objects.requireNonNull(getCommand("coinflip")).setExecutor(new CoinFlipCommand(choosingGUI));
@@ -43,5 +45,6 @@ public final class Coinflip extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        getLogger().info("Plugin disabled!");
     }
 }
