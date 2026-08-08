@@ -20,6 +20,7 @@ public class UpdateChoosingGUI extends  BukkitRunnable {
     public void run() {
         if(!player.getOpenInventory().getTopInventory().equals(inv)) {
             cancel();
+            return;
         }
         choosingGUI.updateChoosingGUI(inv);
     }
