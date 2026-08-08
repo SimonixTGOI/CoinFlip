@@ -22,7 +22,6 @@ import java.util.List;
 public class ChoosingGUI {
     private final FlipQueue flipQueue;
     public final NamespacedKey coinflipkey;
-    private Inventory inv;
     private final Plugin plugin;
 
     public ChoosingGUI(FlipQueue flipQueue,  Plugin plugin) {
@@ -32,7 +31,7 @@ public class ChoosingGUI {
     }
 
     public void openGUI(Player player) {
-        inv = Bukkit.createInventory(player, 27, Component.text("CoinFlip"));
+        Inventory inv = Bukkit.createInventory(player, 27, Component.text("CoinFlip"));
 
         ItemStack nextPage = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
         ItemStack previousPage = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
