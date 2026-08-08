@@ -6,13 +6,18 @@ import simo.coinflip.commands.LeaveQueueCommand;
 import simo.coinflip.gui.ChoosingGUI;
 import simo.coinflip.gui.CreateFlipGUI;
 import simo.coinflip.listeners.ClickListener;
-import simo.coinflip.managers.CreatingQueueManager;
-import simo.coinflip.managers.EconomyManager;
-import simo.coinflip.managers.FlipQueue;
+import simo.coinflip.managers.*;
 
 import java.util.Objects;
 
 public final class Coinflip extends JavaPlugin {
+    private final EconomyManager economyManager = new EconomyManager(this);
+    private final CreatingQueueManager creatingQueueManager = new CreatingQueueManager();
+    private final FlipQueue flipQueue = new FlipQueue(economyManager);
+    private final ChoosingGUI choosingGUI = new ChoosingGUI(flipQueue, this);
+    private final CreateFlipGUI createFlipGUI = new CreateFlipGUI(creatingQueueManager);
+    private final OccupiedListManager occupiedListManager = new OccupiedListManager();
+    private final ClickListener clickListener = new ClickListener(choosingGUI, createFlipGUI, creatingQueueManager, flipQueue, economyManager, this, occupiedListManager);
 
     @Override
     public void onEnable() {
@@ -20,19 +25,12 @@ public final class Coinflip extends JavaPlugin {
 
         getLogger().info("Plugin is currently loading...");
 
-        EconomyManager economyManager = new EconomyManager(this);
+
 
         economyManager.setup();
         if(!economyManager.isEnabled()) {
             return;
         }
-
-        CreatingQueueManager creatingQueueManager = new CreatingQueueManager();
-        FlipQueue flipQueue = new FlipQueue(economyManager);
-        ChoosingGUI choosingGUI = new ChoosingGUI(flipQueue, this);
-        CreateFlipGUI createFlipGUI = new CreateFlipGUI(creatingQueueManager);
-
-        ClickListener clickListener = new ClickListener(choosingGUI, createFlipGUI, creatingQueueManager, flipQueue, economyManager, this);
 
 
         Objects.requireNonNull(getCommand("coinflip")).setExecutor(new CoinFlipCommand(choosingGUI));
@@ -46,5 +44,9 @@ public final class Coinflip extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         getLogger().info("Plugin disabled!");
+        DisablingManager disablingManager = new DisablingManager(economyManager, occupiedListManager, flipQueue, this);
+        disablingManager.refundOccupied();
+        disablingManager.refundQueue();
+
     }
 }

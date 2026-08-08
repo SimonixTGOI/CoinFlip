@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import simo.coinflip.managers.EconomyManager;
 import simo.coinflip.managers.FlipQueue;
+import simo.coinflip.managers.OccupiedListManager;
 import simo.coinflip.models.CoinFlip;
 import simo.coinflip.task.CloseTask;
 import simo.coinflip.task.DontCloseTask;
@@ -23,16 +24,18 @@ public class Flipping {
     private final Plugin plugin;
     private final EconomyManager economyManager;
     private final FlipQueue flipQueue;
+    private final OccupiedListManager occupiedListManager;
     private Player player;
     private Player target;
     private CoinFlip coinFlip;
 
 
-    public Flipping(ChoosingGUI choosingGUI, Plugin plugin, EconomyManager economyManager, FlipQueue flipQueue) {
+    public Flipping(ChoosingGUI choosingGUI, Plugin plugin, EconomyManager economyManager, FlipQueue flipQueue, OccupiedListManager occupiedListManager) {
         this.choosingGUI = choosingGUI;
         this.plugin = plugin;
         this.economyManager = economyManager;
         this.flipQueue = flipQueue;
+        this.occupiedListManager = occupiedListManager;
     }
 
 
@@ -53,6 +56,8 @@ public class Flipping {
                 .runTaskTimer(plugin, 0L, 1L);
         new DontCloseTask(target, flipping, 3)
                 .runTaskTimer(plugin, 0L, 1L);
+        occupiedListManager.setOccupied(player, coinFlip);
+        occupiedListManager.setOccupied(target, coinFlip);
     }
 
 
@@ -65,12 +70,18 @@ public class Flipping {
             player.sendMessage("You Lost!");
             player.openInventory(redInventory(target, player));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_DEATH, 0.7f, 0.8f);
-            economyManager.depositPlayer(target, value*2);
+            if(!economyManager.depositPlayer(target, value*2)) {
+                target.sendMessage("An error as occurred while depositing " + value*2 + "money on your balance, please contact an administrator.");
+                plugin.getLogger().warning("An error as occurred while depositing " + value*2 + "to " + target + ".");
+            }
             target.sendMessage("You Won!");
             target.openInventory(greenInventory(target));
             target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
         } else {
-            economyManager.depositPlayer(player, value*2);
+            if(!economyManager.depositPlayer(player, value*2)) {
+                player.sendMessage("An error as occurred while depositing " + value*2 + "money on your balance, please contact an administrator.");
+                plugin.getLogger().warning("An error as occurred while depositing " + value*2 + "to " + player + ".");
+            }
             player.sendMessage("You Won!");
             player.openInventory(greenInventory(player));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);

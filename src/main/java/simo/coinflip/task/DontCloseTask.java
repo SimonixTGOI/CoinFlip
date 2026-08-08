@@ -18,7 +18,7 @@ public class DontCloseTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if(!player.getOpenInventory().equals(inventory)) {
+        if(!player.getOpenInventory().getTopInventory().equals(inventory)) {
             player.openInventory(inventory);
         }
         if(count >= duration) {

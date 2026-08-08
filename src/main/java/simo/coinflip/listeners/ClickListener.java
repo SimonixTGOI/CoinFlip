@@ -18,6 +18,7 @@ import simo.coinflip.gui.Flipping;
 import simo.coinflip.managers.CreatingQueueManager;
 import simo.coinflip.managers.EconomyManager;
 import simo.coinflip.managers.FlipQueue;
+import simo.coinflip.managers.OccupiedListManager;
 import simo.coinflip.models.CoinFlip;
 
 public class ClickListener implements Listener {
@@ -27,14 +28,16 @@ public class ClickListener implements Listener {
     private final FlipQueue flipQueue;
     private final EconomyManager economyManager;
     private final Plugin plugin;
+    private final OccupiedListManager occupiedListManager;
 
-    public ClickListener(ChoosingGUI choosingGUI, CreateFlipGUI createFlipGUI, CreatingQueueManager creatingQueueManager, FlipQueue flipQueue, EconomyManager economyManager, Plugin plugin) {
+    public ClickListener(ChoosingGUI choosingGUI, CreateFlipGUI createFlipGUI, CreatingQueueManager creatingQueueManager, FlipQueue flipQueue, EconomyManager economyManager, Plugin plugin, OccupiedListManager occupiedListManager) {
         this.choosingGUI = choosingGUI;
         this.createFlipGUI = createFlipGUI;
         this.flipQueue = flipQueue;
         this.creatingQueueManager = creatingQueueManager;
         this.economyManager = economyManager;
         this.plugin = plugin;
+        this.occupiedListManager = occupiedListManager;
     }
 
     @EventHandler
@@ -83,23 +86,39 @@ public class ClickListener implements Listener {
                                 player.sendMessage("You can't accept your own CoinFlip!");
                                 return;
                             }
-                            int value = flipQueue.getCoinFlip(target).getValue();
+
+                            CoinFlip coinFlip = flipQueue.getCoinFlip(target);
+
+                            int value = coinFlip.getValue();
                             if(!economyManager.hasEnoughMoney(player, value)) {
                                 player.sendMessage("You do not have enough money!");
                                 return;
                             }
+
+                            if(flipQueue.isInQueue(player)) {
+                                player.sendMessage("To accept a CoinFlip you need to exit the queue first.");
+                                return;
+                            }
+
+                            if(occupiedListManager.isOccupied(target)) {
+                                player.sendMessage("The player is currently unavailable.");
+                                return;
+                            }
+                            if(occupiedListManager.isOccupied(player)) {
+                                player.sendMessage("The player is currently unavailable.");
+                                return;
+                            }
+
                             if(!economyManager.withdrawMoney(player, value)) {
                                 player.sendMessage("An error occurred while accepting the CoinFlip.");
                                 plugin.getLogger().warning("Failed to withdraw " + value + " from " + player.getName());
                                 return;
                             }
-                            if(flipQueue.isInQueue(player)) {
-                                player.sendMessage("To accept a CoinFlip you need to exit the queue.");
-                                return;
-                            }
 
-                            Flipping flipping = new Flipping(choosingGUI, plugin,economyManager, flipQueue);
+
+                            Flipping flipping = new Flipping(choosingGUI, plugin,economyManager, flipQueue, occupiedListManager);
                             flipping.openingFlipping(player, target, flipQueue.getCoinFlip(target));
+
                         }
                     }
 
@@ -172,7 +191,7 @@ public class ClickListener implements Listener {
 
             case "You Lost", "You Won", "CoinFlipping...":
                 event.setCancelled(true);
-
+                return;
         }
 
     }
