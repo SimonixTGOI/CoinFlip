@@ -1,25 +1,25 @@
 package simo.coinflip.managers;
 
 import org.bukkit.entity.Player;
-import simo.coinflip.models.CoinFlip;
+import simo.coinflip.models.CoinFlipModel;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class FlipQueue {
-    private final Map<UUID, CoinFlip> map = new HashMap<>();
+    private final Map<UUID, CoinFlipModel> map = new HashMap<>();
     private final EconomyManager economyManager;
     public FlipQueue(EconomyManager economyManager) {
         this.economyManager = economyManager;
     }
 
-    public boolean joinQueue(CoinFlip coinFlip) {
-        Player player = coinFlip.getPlayer();
-        if(!economyManager.withdrawMoney(player, coinFlip.getValue())) {
+    public boolean joinQueue(CoinFlipModel coinFlipModel) {
+        Player player = coinFlipModel.getPlayer();
+        if(!economyManager.withdrawMoney(player, coinFlipModel.getValue())) {
             return false;
         }
-        map.put(player.getUniqueId(), coinFlip);
+        map.put(player.getUniqueId(), coinFlipModel);
         return true;
     }
 
@@ -27,8 +27,8 @@ public class FlipQueue {
         if(!map.containsKey(player.getUniqueId())) {
             return false;
         }
-        CoinFlip coinFlip = map.get(player.getUniqueId());
-        if(!economyManager.depositPlayer(player, coinFlip.getValue())) {
+        CoinFlipModel coinFlipModel = map.get(player.getUniqueId());
+        if(!economyManager.depositPlayer(player, coinFlipModel.getValue())) {
             return false;
         }
         map.remove(player.getUniqueId());
@@ -43,11 +43,11 @@ public class FlipQueue {
         return map.containsKey(player.getUniqueId());
     }
 
-    public Map<UUID, CoinFlip> getQueue() {
+    public Map<UUID, CoinFlipModel> getQueue() {
         return map;
     }
 
-    public CoinFlip getCoinFlip(Player player) {
+    public CoinFlipModel getCoinFlip(Player player) {
         return map.get(player.getUniqueId());
     }
 }

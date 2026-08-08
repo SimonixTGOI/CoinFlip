@@ -12,7 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
-import simo.coinflip.models.CoinFlip;
+import simo.coinflip.models.CoinFlipModel;
 import simo.coinflip.managers.FlipQueue;
 import simo.coinflip.task.UpdateChoosingGUI;
 
@@ -54,8 +54,8 @@ public class ChoosingGUI {
         previousPage.setItemMeta(previousPageMeta);
         createFlip.setItemMeta(createFlipMeta);
 
-        for(CoinFlip coinFlip : flipQueue.getQueue().values()) {
-            inv.addItem(createItem(coinFlip));
+        for(CoinFlipModel coinFlipModel : flipQueue.getQueue().values()) {
+            inv.addItem(createItem(coinFlipModel));
 
         }
 
@@ -69,9 +69,9 @@ public class ChoosingGUI {
                 .runTaskTimer(plugin, 0L, 20L);
     }
 
-    public ItemStack createItem(CoinFlip coinFlip) {
-        Player player = coinFlip.getPlayer();
-        int value = coinFlip.getValue();
+    public ItemStack createItem(CoinFlipModel coinFlipModel) {
+        Player player = coinFlipModel.getPlayer();
+        int value = coinFlipModel.getValue();
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
         skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(player.getUniqueId()));
@@ -102,8 +102,8 @@ public class ChoosingGUI {
 
     public void updateChoosingGUI(Inventory inv) {
         int i = 0;
-        for(CoinFlip coinFlip : flipQueue.getQueue().values()) {
-            inv.setItem(i, createItem(coinFlip));
+        for(CoinFlipModel coinFlipModel : flipQueue.getQueue().values()) {
+            inv.setItem(i, createItem(coinFlipModel));
             i++;
         }
         for(int j = i; j < 17; j++) {

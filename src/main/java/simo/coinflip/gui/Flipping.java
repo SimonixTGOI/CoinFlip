@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin;
 import simo.coinflip.managers.EconomyManager;
 import simo.coinflip.managers.FlipQueue;
 import simo.coinflip.managers.OccupiedListManager;
-import simo.coinflip.models.CoinFlip;
+import simo.coinflip.models.CoinFlipModel;
 import simo.coinflip.task.CloseTask;
 import simo.coinflip.task.DontCloseTask;
 import simo.coinflip.task.FlipAnimation;
@@ -27,7 +27,7 @@ public class Flipping {
     private final OccupiedListManager occupiedListManager;
     private Player player;
     private Player target;
-    private CoinFlip coinFlip;
+    private CoinFlipModel coinFlipModel;
 
 
     public Flipping(ChoosingGUI choosingGUI, Plugin plugin, EconomyManager economyManager, FlipQueue flipQueue, OccupiedListManager occupiedListManager) {
@@ -39,10 +39,10 @@ public class Flipping {
     }
 
 
-    public void openingFlipping(Player player, Player target, CoinFlip coinFlip) {
+    public void openingFlipping(Player player, Player target, CoinFlipModel coinFlipModel) {
         this.player = player;
         this.target = target;
-        this.coinFlip = coinFlip;
+        this.coinFlipModel = coinFlipModel;
         flipQueue.finishQueue(target);
         Inventory flipping = Bukkit.createInventory(player, 45, Component.text("CoinFlipping..."));
         flipping.setItem(21, choosingGUI.createSkull(player));
@@ -50,20 +50,23 @@ public class Flipping {
         flipping.setItem(22, new ItemStack(Material.RED_STAINED_GLASS));
         player.openInventory(flipping);
         target.openInventory(flipping);
-        new FlipAnimation(player, target, flipping, this, 3)
-                .runTaskTimer(plugin, 0L, 10L);
-        new DontCloseTask(player, flipping, 3)
-                .runTaskTimer(plugin, 0L, 1L);
-        new DontCloseTask(target, flipping, 3)
-                .runTaskTimer(plugin, 0L, 1L);
-        occupiedListManager.setOccupied(player, coinFlip);
-        occupiedListManager.setOccupied(target, coinFlip);
+        FlipAnimation animation = new FlipAnimation(player, target, flipping, this, 3);
+        animation.runTaskTimer(plugin, 0L, 10L);
+        DontCloseTask task1 = new DontCloseTask(player, flipping, 3);
+        task1.runTaskTimer(plugin, 0L, 1L);
+        DontCloseTask task2 = new DontCloseTask(target, flipping, 3);
+        task2.runTaskTimer(plugin, 0L, 1L);
+        coinFlipModel.setTask1(task1);
+        coinFlipModel.setTask2(task2);
+        coinFlipModel.setFlipAnimation(animation);
+        occupiedListManager.setOccupied(player, coinFlipModel);
+        occupiedListManager.setOccupied(target, coinFlipModel);
     }
 
 
     public void flipResult() {
 
-        int value = coinFlip.getValue();
+        int value = coinFlipModel.getValue();
         Random random = new Random();
         if(random.nextBoolean()) {
 
@@ -71,16 +74,16 @@ public class Flipping {
             player.openInventory(redInventory(target, player));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_DEATH, 0.7f, 0.8f);
             if(!economyManager.depositPlayer(target, value*2)) {
-                target.sendMessage("An error as occurred while depositing " + value*2 + "money on your balance, please contact an administrator.");
-                plugin.getLogger().warning("An error as occurred while depositing " + value*2 + "to " + target + ".");
+                target.sendMessage("An error as occurred while depositing " + value*2 + " money on your balance, please contact an administrator.");
+                plugin.getLogger().warning("An error as occurred while depositing " + value*2 + " to " + target + ".");
             }
             target.sendMessage("You Won!");
             target.openInventory(greenInventory(target));
             target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
         } else {
             if(!economyManager.depositPlayer(player, value*2)) {
-                player.sendMessage("An error as occurred while depositing " + value*2 + "money on your balance, please contact an administrator.");
-                plugin.getLogger().warning("An error as occurred while depositing " + value*2 + "to " + player + ".");
+                player.sendMessage("An error as occurred while depositing " + value*2 + " money on your balance, please contact an administrator.");
+                plugin.getLogger().warning("An error as occurred while depositing " + value*2 + " to " + player + ".");
             }
             player.sendMessage("You Won!");
             player.openInventory(greenInventory(player));
@@ -92,6 +95,8 @@ public class Flipping {
         }
         new CloseTask(player, target, 2)
                 .runTaskTimer(plugin, 0L, 20L);
+        occupiedListManager.removeOccupied(player);
+        occupiedListManager.removeOccupied(target);
     }
 
     public Inventory redInventory(Player winner, Player loser) {

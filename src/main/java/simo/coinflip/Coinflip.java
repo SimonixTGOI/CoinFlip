@@ -6,6 +6,8 @@ import simo.coinflip.commands.LeaveQueueCommand;
 import simo.coinflip.gui.ChoosingGUI;
 import simo.coinflip.gui.CreateFlipGUI;
 import simo.coinflip.listeners.ClickListener;
+import simo.coinflip.listeners.InventoryCloseListener;
+import simo.coinflip.listeners.QuitListener;
 import simo.coinflip.managers.*;
 
 import java.util.Objects;
@@ -18,6 +20,8 @@ public final class Coinflip extends JavaPlugin {
     private final CreateFlipGUI createFlipGUI = new CreateFlipGUI(creatingQueueManager);
     private final OccupiedListManager occupiedListManager = new OccupiedListManager();
     private final ClickListener clickListener = new ClickListener(choosingGUI, createFlipGUI, creatingQueueManager, flipQueue, economyManager, this, occupiedListManager);
+    private final QuitListener quitListener = new QuitListener(occupiedListManager, flipQueue, this, economyManager);
+    private final InventoryCloseListener inventoryCloseListener = new InventoryCloseListener(creatingQueueManager);
 
     @Override
     public void onEnable() {
@@ -37,6 +41,8 @@ public final class Coinflip extends JavaPlugin {
         Objects.requireNonNull(getCommand("leavequeue")).setExecutor(new LeaveQueueCommand(flipQueue));
 
         getServer().getPluginManager().registerEvents(clickListener, this);
+        getServer().getPluginManager().registerEvents(quitListener, this);
+        getServer().getPluginManager().registerEvents(inventoryCloseListener, this);
         getLogger().info("Plugin enabled!");
     }
 

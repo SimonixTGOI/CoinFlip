@@ -19,7 +19,7 @@ import simo.coinflip.managers.CreatingQueueManager;
 import simo.coinflip.managers.EconomyManager;
 import simo.coinflip.managers.FlipQueue;
 import simo.coinflip.managers.OccupiedListManager;
-import simo.coinflip.models.CoinFlip;
+import simo.coinflip.models.CoinFlipModel;
 
 public class ClickListener implements Listener {
     private final ChoosingGUI choosingGUI;
@@ -87,9 +87,9 @@ public class ClickListener implements Listener {
                                 return;
                             }
 
-                            CoinFlip coinFlip = flipQueue.getCoinFlip(target);
+                            CoinFlipModel coinFlipModel = flipQueue.getCoinFlip(target);
 
-                            int value = coinFlip.getValue();
+                            int value = coinFlipModel.getValue();
                             if(!economyManager.hasEnoughMoney(player, value)) {
                                 player.sendMessage("You do not have enough money!");
                                 return;
@@ -117,6 +117,7 @@ public class ClickListener implements Listener {
 
 
                             Flipping flipping = new Flipping(choosingGUI, plugin,economyManager, flipQueue, occupiedListManager);
+                            coinFlipModel.setTarget(player);
                             flipping.openingFlipping(player, target, flipQueue.getCoinFlip(target));
 
                         }
@@ -136,33 +137,37 @@ public class ClickListener implements Listener {
                 itemName = PlainTextComponentSerializer.plainText().serialize(itemNameComponent);
 
                 if(!creatingQueueManager.existsCoinFlip(player)) {
-                    CoinFlip coinFlip = new CoinFlip(player);
-                    creatingQueueManager.addCoinFlip(coinFlip);
+                    CoinFlipModel coinFlipModel = new CoinFlipModel(player);
+                    creatingQueueManager.addCoinFlip(coinFlipModel);
                 }
 
                 if(itemName.equalsIgnoreCase("Create Flip")) {
-                    CoinFlip coinFlip = creatingQueueManager.getCoinFlip(player);
-                    if(coinFlip.getValue() == 0) {
+                    CoinFlipModel coinFlipModel = creatingQueueManager.getCoinFlip(player);
+                    if(coinFlipModel.getValue() == 0) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                         player.sendMessage("The CoinFlip value must be higher than zero!");
                         return;
                     }
-                    if(!economyManager.hasEnoughMoney(player, coinFlip.getValue())) {
+                    if(occupiedListManager.isOccupied(player)) {
+                        player.sendMessage("You are already doing a CoinFlip!");
+                        return;
+                    }
+                    if(!economyManager.hasEnoughMoney(player, coinFlipModel.getValue())) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                         player.sendMessage("Not enough money!");
                         return;
                     }
 
 
-                    if(!flipQueue.joinQueue(coinFlip)) {
+                    if(!flipQueue.joinQueue(coinFlipModel)) {
                         player.sendMessage("An error occurred while creating the CoinFlip.");
-                        plugin.getLogger().warning("Failed to withdraw " + coinFlip.getValue() + " from " + player.getName());
+                        plugin.getLogger().warning("Failed to withdraw " + coinFlipModel.getValue() + " from " + player.getName());
                         return;
                     }
 
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1f, 1f);
 
-                    creatingQueueManager.removeCoinFlip(coinFlip);
+                    creatingQueueManager.removeCoinFlip(coinFlipModel);
 
                     player.sendMessage("CoinFlip created!");
 
@@ -170,19 +175,19 @@ public class ClickListener implements Listener {
                 }
                 if(itemName.equalsIgnoreCase("Add 100")) {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1.2f);
-                    CoinFlip coinFlip = creatingQueueManager.getCoinFlip(player);
-                    coinFlip.addValue(100);
+                    CoinFlipModel coinFlipModel = creatingQueueManager.getCoinFlip(player);
+                    coinFlipModel.addValue(100);
                     createFlipGUI.updateGUI(event.getInventory(), player);
                 }
                 if(itemName.equalsIgnoreCase("Remove 100")) {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
-                    CoinFlip coinFlip = creatingQueueManager.getCoinFlip(player);
-                    coinFlip.removeValue(100);
+                    CoinFlipModel coinFlipModel = creatingQueueManager.getCoinFlip(player);
+                    coinFlipModel.removeValue(100);
                     createFlipGUI.updateGUI(event.getInventory(), player);
                 }
                 if(itemName.equalsIgnoreCase("Back")) {
-                    CoinFlip coinFlip = creatingQueueManager.getCoinFlip(player);
-                    creatingQueueManager.removeCoinFlip(coinFlip);
+                    CoinFlipModel coinFlipModel = creatingQueueManager.getCoinFlip(player);
+                    creatingQueueManager.removeCoinFlip(coinFlipModel);
 
                     choosingGUI.openGUI(player);
 
