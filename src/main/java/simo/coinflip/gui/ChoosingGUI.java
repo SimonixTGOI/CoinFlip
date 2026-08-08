@@ -14,18 +14,21 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import simo.coinflip.models.CoinFlip;
 import simo.coinflip.managers.FlipQueue;
+import simo.coinflip.task.UpdateChoosingGUI;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChoosingGUI {
-    private final FlipQueue flipQueue;;
+    private final FlipQueue flipQueue;
     public final NamespacedKey coinflipkey;
     private Inventory inv;
+    private final Plugin plugin;
 
     public ChoosingGUI(FlipQueue flipQueue,  Plugin plugin) {
         this.flipQueue = flipQueue;
         coinflipkey = new NamespacedKey(plugin, "coinflip");
+        this.plugin = plugin;
     }
 
     public void openGUI(Player player) {
@@ -63,6 +66,8 @@ public class ChoosingGUI {
         inv.setItem(18, createFlip);
 
         player.openInventory(inv);
+        new UpdateChoosingGUI(player, this, inv)
+                .runTaskTimer(plugin, 0L, 20L);
     }
 
     public ItemStack createItem(CoinFlip coinFlip) {
@@ -96,11 +101,16 @@ public class ChoosingGUI {
         return skull;
     }
 
+    public void updateChoosingGUI(Inventory inv) {
+        int i = 0;
+        for(CoinFlip coinFlip : flipQueue.getQueue().values()) {
+            inv.setItem(i, createItem(coinFlip));
+            i++;
+        }
+        for(int j = i; j < 17; j++) {
+            inv.setItem(j, new ItemStack(Material.AIR, 1));
+        }
 
-    public void updateChoosingGUI(CoinFlip coinFlip) {
-        inv.addItem(createItem(coinFlip));
     }
-
-
 
 }

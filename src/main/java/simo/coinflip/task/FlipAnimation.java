@@ -17,19 +17,21 @@ public class FlipAnimation extends BukkitRunnable {
     private final Flipping flipping;
     private int status;
     private int count = 0;
+    private final int duration;
 
-    public FlipAnimation(Player player, Player target, Inventory inventory, Flipping flipping) {
+    public FlipAnimation(Player player, Player target, Inventory inventory, Flipping flipping, int duration_in_seconds) {
         this.player = player;
         this.target = target;
         this.inventory = inventory;
         this.flipping = flipping;
+        this.duration = duration_in_seconds*2;
     }
 
 
     @Override
     public void run() {
 
-        if(count > 5) {
+        if(count > duration) {
             flipping.flipResult();
             this.cancel();
         } else {

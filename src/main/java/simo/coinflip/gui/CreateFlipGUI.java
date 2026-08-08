@@ -8,16 +8,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import simo.coinflip.managers.CoinFlipManager;
+import simo.coinflip.managers.CreatingQueueManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CreateFlipGUI {
-    private final CoinFlipManager coinFlipManager;
+    private final CreatingQueueManager creatingQueueManager;
 
-    public CreateFlipGUI(CoinFlipManager coinFlipManager) {
-        this.coinFlipManager = coinFlipManager;
+    public CreateFlipGUI(CreatingQueueManager creatingQueueManager) {
+        this.creatingQueueManager = creatingQueueManager;
     }
 
 
@@ -37,8 +37,8 @@ public class CreateFlipGUI {
                 .decoration(TextDecoration.ITALIC, false));
 
         int value = 0;
-        if(!(coinFlipManager.getCoinFlip(player) == null)) {
-            value = coinFlipManager.getCoinFlip(player).getValue();
+        if(!(creatingQueueManager.getCoinFlip(player) == null)) {
+            value = creatingQueueManager.getCoinFlip(player).getValue();
         }
         List<Component> lore =  new ArrayList<>();
         lore.add(Component.text("Value:" + value)
@@ -78,8 +78,8 @@ public class CreateFlipGUI {
                 .decoration(TextDecoration.ITALIC, false));
 
         int value = 0;
-        if(!(coinFlipManager.getCoinFlip(player) == null)) {
-            value = coinFlipManager.getCoinFlip(player).getValue();
+        if(!(creatingQueueManager.getCoinFlip(player) == null)) {
+            value = creatingQueueManager.getCoinFlip(player).getValue();
         }
         List<Component> lore =  new ArrayList<>();
         lore.add(Component.text("Value:" + value)

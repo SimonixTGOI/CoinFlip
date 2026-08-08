@@ -6,7 +6,7 @@ import simo.coinflip.commands.LeaveQueueCommand;
 import simo.coinflip.gui.ChoosingGUI;
 import simo.coinflip.gui.CreateFlipGUI;
 import simo.coinflip.listeners.ClickListener;
-import simo.coinflip.managers.CoinFlipManager;
+import simo.coinflip.managers.CreatingQueueManager;
 import simo.coinflip.managers.EconomyManager;
 import simo.coinflip.managers.FlipQueue;
 
@@ -27,12 +27,12 @@ public final class Coinflip extends JavaPlugin {
             return;
         }
 
-        CoinFlipManager coinFlipManager = new CoinFlipManager();
+        CreatingQueueManager creatingQueueManager = new CreatingQueueManager();
         FlipQueue flipQueue = new FlipQueue(economyManager);
         ChoosingGUI choosingGUI = new ChoosingGUI(flipQueue, this);
-        CreateFlipGUI createFlipGUI = new CreateFlipGUI(coinFlipManager);
+        CreateFlipGUI createFlipGUI = new CreateFlipGUI(creatingQueueManager);
 
-        ClickListener clickListener = new ClickListener(choosingGUI, createFlipGUI, coinFlipManager, flipQueue, economyManager, this);
+        ClickListener clickListener = new ClickListener(choosingGUI, createFlipGUI, creatingQueueManager, flipQueue, economyManager, this);
 
 
         Objects.requireNonNull(getCommand("coinflip")).setExecutor(new CoinFlipCommand(choosingGUI));

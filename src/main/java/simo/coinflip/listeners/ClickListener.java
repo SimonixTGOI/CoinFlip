@@ -15,7 +15,7 @@ import org.bukkit.plugin.Plugin;
 import simo.coinflip.gui.ChoosingGUI;
 import simo.coinflip.gui.CreateFlipGUI;
 import simo.coinflip.gui.Flipping;
-import simo.coinflip.managers.CoinFlipManager;
+import simo.coinflip.managers.CreatingQueueManager;
 import simo.coinflip.managers.EconomyManager;
 import simo.coinflip.managers.FlipQueue;
 import simo.coinflip.models.CoinFlip;
@@ -23,16 +23,16 @@ import simo.coinflip.models.CoinFlip;
 public class ClickListener implements Listener {
     private final ChoosingGUI choosingGUI;
     private final CreateFlipGUI createFlipGUI;
-    private final CoinFlipManager coinFlipManager;
+    private final CreatingQueueManager creatingQueueManager;
     private final FlipQueue flipQueue;
     private final EconomyManager economyManager;
     private final Plugin plugin;
 
-    public ClickListener(ChoosingGUI choosingGUI, CreateFlipGUI createFlipGUI, CoinFlipManager coinFlipManager, FlipQueue flipQueue, EconomyManager economyManager, Plugin plugin) {
+    public ClickListener(ChoosingGUI choosingGUI, CreateFlipGUI createFlipGUI, CreatingQueueManager creatingQueueManager, FlipQueue flipQueue, EconomyManager economyManager, Plugin plugin) {
         this.choosingGUI = choosingGUI;
         this.createFlipGUI = createFlipGUI;
         this.flipQueue = flipQueue;
-        this.coinFlipManager = coinFlipManager;
+        this.creatingQueueManager = creatingQueueManager;
         this.economyManager = economyManager;
         this.plugin = plugin;
     }
@@ -93,6 +93,10 @@ public class ClickListener implements Listener {
                                 plugin.getLogger().warning("Failed to withdraw " + value + " from " + player.getName());
                                 return;
                             }
+                            if(flipQueue.isInQueue(player)) {
+                                player.sendMessage("To accept a CoinFlip you need to exit the queue.");
+                                return;
+                            }
 
                             Flipping flipping = new Flipping(choosingGUI, plugin,economyManager, flipQueue);
                             flipping.openingFlipping(player, target, flipQueue.getCoinFlip(target));
@@ -112,13 +116,13 @@ public class ClickListener implements Listener {
                 if(itemNameComponent == null) return;
                 itemName = PlainTextComponentSerializer.plainText().serialize(itemNameComponent);
 
-                if(!coinFlipManager.existsCoinFlip(player)) {
+                if(!creatingQueueManager.existsCoinFlip(player)) {
                     CoinFlip coinFlip = new CoinFlip(player);
-                    coinFlipManager.addCoinFlip(coinFlip);
+                    creatingQueueManager.addCoinFlip(coinFlip);
                 }
 
                 if(itemName.equalsIgnoreCase("Create Flip")) {
-                    CoinFlip coinFlip = coinFlipManager.getCoinFlip(player);
+                    CoinFlip coinFlip = creatingQueueManager.getCoinFlip(player);
                     if(coinFlip.getValue() == 0) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                         player.sendMessage("The CoinFlip value must be higher than zero!");
@@ -139,34 +143,35 @@ public class ClickListener implements Listener {
 
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1f, 1f);
 
-                    coinFlipManager.removeCoinFlip(coinFlip);
+                    creatingQueueManager.removeCoinFlip(coinFlip);
 
                     player.sendMessage("CoinFlip created!");
-
-                    choosingGUI.updateChoosingGUI(coinFlip);
 
                     player.closeInventory();
                 }
                 if(itemName.equalsIgnoreCase("Add 100")) {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1.2f);
-                    CoinFlip coinFlip = coinFlipManager.getCoinFlip(player);
-                    coinFlip.addValue();
+                    CoinFlip coinFlip = creatingQueueManager.getCoinFlip(player);
+                    coinFlip.addValue(100);
                     createFlipGUI.updateGUI(event.getInventory(), player);
                 }
                 if(itemName.equalsIgnoreCase("Remove 100")) {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
-                    CoinFlip coinFlip = coinFlipManager.getCoinFlip(player);
-                    coinFlip.removeValue();
+                    CoinFlip coinFlip = creatingQueueManager.getCoinFlip(player);
+                    coinFlip.removeValue(100);
                     createFlipGUI.updateGUI(event.getInventory(), player);
                 }
                 if(itemName.equalsIgnoreCase("Back")) {
-                    CoinFlip coinFlip = coinFlipManager.getCoinFlip(player);
-                    coinFlipManager.removeCoinFlip(coinFlip);
+                    CoinFlip coinFlip = creatingQueueManager.getCoinFlip(player);
+                    creatingQueueManager.removeCoinFlip(coinFlip);
 
                     choosingGUI.openGUI(player);
 
                 }
+                return;
 
+            case "You Lost", "You Won", "CoinFlipping...":
+                event.setCancelled(true);
 
         }
 

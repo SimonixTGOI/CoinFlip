@@ -12,6 +12,7 @@ import simo.coinflip.managers.EconomyManager;
 import simo.coinflip.managers.FlipQueue;
 import simo.coinflip.models.CoinFlip;
 import simo.coinflip.task.CloseTask;
+import simo.coinflip.task.DontCloseTask;
 import simo.coinflip.task.FlipAnimation;
 
 import java.util.Objects;
@@ -46,8 +47,12 @@ public class Flipping {
         flipping.setItem(22, new ItemStack(Material.RED_STAINED_GLASS));
         player.openInventory(flipping);
         target.openInventory(flipping);
-        new FlipAnimation(player, target, flipping, this)
+        new FlipAnimation(player, target, flipping, this, 3)
                 .runTaskTimer(plugin, 0L, 10L);
+        new DontCloseTask(player, flipping, 3)
+                .runTaskTimer(plugin, 0L, 1L);
+        new DontCloseTask(target, flipping, 3)
+                .runTaskTimer(plugin, 0L, 1L);
     }
 
 

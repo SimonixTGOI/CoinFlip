@@ -18,15 +18,18 @@ public class CoinFlip {
         return this.value;
     }
 
-    public void addValue() {
-        this.value+=100;
+    public void addValue(int amount) {
+        this.value+=amount;
     }
 
-    public void removeValue() {
+    public void removeValue(int amount) {
         if(value == 0) {
             return;
         }
-        this.value-=100;
+        if(this.value < amount) {
+            return;
+        }
+        this.value-=amount;
     }
 
 }
